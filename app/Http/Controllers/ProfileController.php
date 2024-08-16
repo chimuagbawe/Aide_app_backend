@@ -25,19 +25,10 @@ class ProfileController extends Controller
 
     public function updateProfile(UpdateProfileRequest $request){
         // Get the currently authenticated user
-        $id = Auth::user()->id;
+        $id = Auth::id();
         $user = User::find($id);
+        $user->update($request->validated());
 
-        // Update user details
-        if ($request->has('name')) {
-            $user->name = $request->name;
-        }
-        if ($request->has('email')) {
-            $user->email = $request->email;
-        }
-        if ($request->has('phone')) {
-            $user->phone = $request->phone;
-        }
         if ($request->hasFile('photo')) {
             $file = $request->file('photo');
             // Delete the old profile photo if it exists
@@ -49,10 +40,7 @@ class ProfileController extends Controller
             $user->photo = $filename;
         }
 
-        // Save changes to the database
         $user->save();
-
-        // Return a JSON response indicating success
         return response()->json([
             'message' => 'Profile updated successfully',
             'user' => $user,
@@ -64,7 +52,7 @@ class ProfileController extends Controller
             'password' => 'required|string',
         ]);
 
-         $id = Auth::user()->id;
+         $id = Auth::id();
          $user = User::find($id);
 
         if (!Hash::check($request->password, $user->password)) {
