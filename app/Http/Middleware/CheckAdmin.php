@@ -3,32 +3,26 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-class CheckAdmin
+class checkAdmin
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return mixed
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
-        // Check if the user is authenticated
-        if (Auth::check()) {
-            // Get the currently authenticated user
-            $user = Auth::user();
 
-            // Check if the user's role is 'admin'
-            if ($user->role === 'admin') {
-                return $next($request); // Allow access
-            }
+        // Check if the user is authenticated and their role is 'admin'
+        if (Auth::check() && Auth::user()->role === 'admin') {
+            return $next($request);
         }
 
-        // If the user is not an admin, deny access
-        return response()->json(['message' => 'Unauthorized'], 403);
+        // Respond with a forbidden error if not an admin
+        return response()->json(['error' => 'Must be Admin'], 403);
     }
 }

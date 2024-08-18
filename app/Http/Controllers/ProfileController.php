@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateProfileRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
@@ -14,38 +15,45 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
-        return response()->json([
-            'id' => $user->id,
-            'email' => $user->email,
-            'photo' => $user->photo,
-            'name' => $user->name,
-            'phone_number' => $user->phone_number,
-        ]);
+        return response()->json(['user' => $user]);
     }
 
     public function updateProfile(UpdateProfileRequest $request){
-        // Get the currently authenticated user
         $id = Auth::id();
         $user = User::find($id);
-        $user->update($request->validated());
 
+        // Update the fields present in the request
+        if ($request->filled('name')) {
+            $user->name = $request->input('name');
+        }
+
+        if ($request->filled('phone_number')) {
+            $user->phone_number = $request->input('phone_number');
+        }
+
+        // Handle profile photo if present
         if ($request->hasFile('photo')) {
             $file = $request->file('photo');
             // Delete the old profile photo if it exists
             if ($user->photo && file_exists(public_path('upload/user_images/'.$user->photo))) {
                 @unlink(public_path('upload/user_images/'.$user->photo));
             }
-            $filename = date('YmdHi').$file->getClientOriginalName();
+            $filename = date('YmdHi').uniqid().$file->getClientOriginalName();
             $file->move(public_path('upload/user_images'), $filename);
             $user->photo = $filename;
         }
 
         $user->save();
+
+        // Log updated user data for debugging
+        Log::info('User updated:', $user->toArray());
+
         return response()->json([
             'message' => 'Profile updated successfully',
             'user' => $user,
         ]);
     }
+
 
     public function deleteAccount(Request $request) {
         $request->validate([
@@ -57,14 +65,11 @@ class ProfileController extends Controller
 
         if (!Hash::check($request->password, $user->password)) {
             return response()->json([
-                'message' => 'The provided password does not match our records.'
+                'message' => 'Wrong Password.'
             ], 403);
         }
 
         $user->delete();
-        $request->user()->currentAccessToken()->delete();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
 
         // Return a response or redirect to a different page
         return response()->json([

@@ -8,13 +8,15 @@ use App\Models\services;
 class ServiceController extends Controller
 {
 public function createService(CreateServiceRequest $request){
-    $imagePath = null;
-    if ($request->hasFile('photo')) {
-        $imagePath = $request->file('photo')->store('upload/service_images', 'public');
+    $filename = null;
+    if ($request->hasFile('thumbnail')) {
+            $file = $request->file('thumbnail');
+            $filename = date('YmdHi').uniqid().$file->getClientOriginalName();
+            $file->move(public_path('upload/service_thumbnails'), $filename);
     }
 
     // Create the service with validated data
-    $service = Services::create(array_merge($request->validated(),['user_id' => Auth::id(),'image' => $imagePath,'status' => 'active',]));
+    $service = Services::create(array_merge($request->validated(),['user_id' => Auth::id(),'thumbnail' => $filename,'status' => 'active',]));
 
     // Return a JSON response indicating success
     return response()->json([
@@ -25,16 +27,37 @@ public function createService(CreateServiceRequest $request){
 
 public function updateService(UpdateServiceRequest $request, $id){
     $service = Services::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
-    if ($request->hasFile('photo')) {
-        $file = $request->file('photo');
-        if ($service->photo && file_exists(public_path('upload/service_images/'.$service->photo))) {
-            @unlink(public_path('upload/service_images/'.$service->photo));
+    $filename = null;
+    if ($request->hasFile('thumbnail')) {
+        $file = $request->file('thumbnail');
+        if ($service->thumbnail && file_exists(public_path('upload/service_thumbnails/'.$service->thumbnail))) {
+            @unlink(public_path('upload/service_thumbnails/'.$service->thumbnail));
         }
-        $filename = date('YmdHi').$file->getClientOriginalName();
-        $file->move(public_path('upload/service_images'), $filename);
-        $service->photo = $filename;
+        $filename = date('YmdHi').uniqid().$file->getClientOriginalName();
+        $file->move(public_path('upload/service_thumbnails'), $filename);
     }
-    $service->update($request->validated());
+    $service->update([
+        'name' => $request->name,
+        'description' => $request->description,
+        'thumbnail' => $filename,
+        'service_type' => $request->service_type
+    ]);
+    // if ($request->filled('name')) {
+    //     $service->name = $request->input('name');
+    // }
+    // if ($request->filled('description')) {
+    //     $service->description = $request->input('description');
+    // }
+    // if ($request->filled('thumbnail')) {
+    //     $service->thumbnail = $filename;
+    // }
+    // if ($request->filled('service_type')) {
+    //     $service->service_type = $request->input('service_type');
+    // }
+
+    // $service->update($request->validated());
+    // why doesn't the above line work
+    // why put method doesnt work
 
     return response()->json([
         'message' => 'Service updated successfully',
@@ -51,8 +74,8 @@ public function deleteService($id){
         ], 403);
     }
 
-    if ($service->image && file_exists(public_path('upload/service_images/' . $service->image))) {
-        @unlink(public_path('upload/service_images/' . $service->image));
+    if ($service->image && file_exists(public_path('upload/service_thumbnails/' . $service->thumbnail))) {
+        @unlink(public_path('upload/service_thumbnails/' . $service->thumbnail));
     }
 
     $service->delete();
@@ -93,14 +116,20 @@ public function getServicesByCategory($category_id){
     ]);
 }
 
-public function getServicesByProvider($user_id){
+public function getServicesByProvider($user_id) {
     // Retrieve services that belong to the specified provider (user)
     $services = Services::where('user_id', $user_id)->get();
+
+    // Check if the collection is empty
+    if ($services->isEmpty()) {
+        return response()->json(['message' => 'No service created'], 404);
+    }
 
     return response()->json([
         'message' => 'Services retrieved successfully',
         'services' => $services,
     ]);
 }
+
 
 }

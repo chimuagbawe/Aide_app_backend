@@ -23,7 +23,6 @@ class UpdateProfileRequest extends FormRequest
     {
         return [
             'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|email|unique:users,email,' . Auth::id(),
             'photo' => 'sometimes|required|image|mimes:jpg,jpeg,png|max:2048',
             'phone_number' => 'sometimes|required|string|max:15',
         ];

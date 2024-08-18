@@ -22,15 +22,12 @@ class CreateServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'category_id' => 'required|exists:categories,id',
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'price' => 'required|string|max:255',
-            'duration' => 'nullable|string|max:255',
-            'location' => 'nullable|string|max:255',
+            'user_id' => 'nullable|exists:users,id',
+            'name' => 'required|string|max:255',
+            'description' => 'required|string|max:1000',
+            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'service_type' => 'nullable|in:online,in-person',
-            'image' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
-            'status' => 'nullable|in:active,inactive,pending'
+            'status' => 'nullable|in:active,inactive',
          ];
     }
 }

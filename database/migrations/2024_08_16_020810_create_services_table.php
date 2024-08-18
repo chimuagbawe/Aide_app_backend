@@ -14,15 +14,11 @@ return new class extends Migration
         Schema::create('services', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('category_id')->constrained()->onDelete('cascade');
-            $table->string('title');
+            $table->string('name');
             $table->text('description');
-            $table->string('price')->nullable();
-            $table->string('duration')->nullable();
-            $table->string('location')->nullable();
-            $table->string('image')->nullable();
+            $table->string('thumbnail');
             $table->enum('service_type', ['online', 'in-person'])->nullable();
-            $table->enum('status', ['active', 'inactive', 'pending'])->default('active');
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
     }

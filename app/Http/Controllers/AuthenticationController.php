@@ -57,10 +57,18 @@ class AuthenticationController extends Controller
 
     }
 
-    public function updatePassword(ResetPasswordRequest $request){
+    public function resetPassword(ResetPasswordRequest $request, $token, $email){
+        if (!$token || !$email) {
+            return response()->json(['error' => 'Token and email are required.'], 400);
+        }
 
         $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
+            [
+                'email' => $email,
+                'password' => $request->password,
+                'password_confirmation' => $request->password_confirmation,
+                'token' => $token,
+            ],
             function (User $user, string $password) {
                 $user->forceFill([
                     'password' => Hash::make($password),
@@ -75,5 +83,6 @@ class AuthenticationController extends Controller
             return response()->json(['error' => __($status)], 400);
         }
     }
+
 
 }

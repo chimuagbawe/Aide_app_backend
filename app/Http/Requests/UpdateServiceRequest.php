@@ -22,15 +22,10 @@ class UpdateServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'category_id' => 'nullable|exists:categories,id',
-            'title' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'nullable|string|max:255',
-            'duration' => 'nullable|string|max:255',
-            'location' => 'nullable|string|max:255',
+            'name' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'service_type' => 'nullable|in:online,in-person',
-            'image' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
-            'status' => 'nullable|in:active,inactive,pending'
         ];
     }
 }
