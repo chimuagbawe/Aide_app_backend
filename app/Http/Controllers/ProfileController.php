@@ -11,11 +11,16 @@ use Illuminate\Http\Request;
 
 class ProfileController extends Controller
 {
-    public function show()
-    {
+    public function show(){
         $user = Auth::user();
 
         return response()->json(['user' => $user]);
+    }
+
+    public function logout(Request $request){
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json(['message' => 'Logged out successfully'], 200);
     }
 
     public function updateProfile(UpdateProfileRequest $request){
@@ -53,7 +58,6 @@ class ProfileController extends Controller
             'user' => $user,
         ]);
     }
-
 
     public function deleteAccount(Request $request) {
         $request->validate([

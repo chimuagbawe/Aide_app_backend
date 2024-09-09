@@ -6,6 +6,8 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\checkAdmin;
 use App\Http\Middleware\EnsureProfileComplete;
+use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
+use Illuminate\Http\Middleware\HandleCors;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -20,12 +22,16 @@ return Application::configure(basePath: dirname(__DIR__))
             }
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // $middleware->append(EnsureProfileComplete::class);
         $middleware->alias(['EnsureProfileComplete' => EnsureProfileComplete::class]);
     })
     ->withMiddleware(function (Middleware $middleware) {
-        // $middleware->append(CheckAdmin::class);
         $middleware->alias(['CheckAdmin' => checkAdmin::class]);
+    })
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->alias(['cors' => HandleCors::class]);
+    })
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->alias(['EnsureEmailIsVerified ' => EnsureEmailIsVerified::class]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
