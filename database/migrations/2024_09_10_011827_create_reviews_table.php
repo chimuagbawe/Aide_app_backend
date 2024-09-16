@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('service_provider_availabilities', function (Blueprint $table) {
+        Schema::create('reviews', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('service_provider_id')->constrained('service_providers')->onDelete('cascade');
-            $table->json('days_of_week'); // Store an array of days
-            $table->time('start_time');
-            $table->time('end_time');
+            $table->tinyInteger('rating')->unsigned()->comment('Rating between 1 and 5');
+            $table->text('comment')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('service_provider_availabilities');
+        Schema::dropIfExists('reviews');
     }
 };

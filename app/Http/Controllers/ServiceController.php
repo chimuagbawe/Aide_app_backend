@@ -126,7 +126,7 @@ public function getServicesByProvider($user_id) {
     }
 
     return response()->json([
-        'message' => 'Services retrieved successfully',
+        'message' => 'Service retrieved successfully',
         'services' => $services,
     ]);
 }

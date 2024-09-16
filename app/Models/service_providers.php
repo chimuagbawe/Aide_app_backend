@@ -14,4 +14,9 @@ class service_providers extends Model
     {
         return $this->hasMany(service_provider_availability::class);
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(Reviews::class);
+    }
 }
