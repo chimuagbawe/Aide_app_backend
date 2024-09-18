@@ -21,4 +21,9 @@ class reviews extends Model
     {
         return $this->belongsTo(service_providers::class);
     }
+
+    public function review_images()
+    {
+        return $this->hasMany(review_images::class);
+    }
 }

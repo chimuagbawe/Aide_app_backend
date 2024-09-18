@@ -22,6 +22,13 @@
                         We are thrilled to have you here! Explore different service categories tailored to meet your
                         specific needs, from the most menial services to the most professional ones.
                     </p>
+                    <p class="sarala-regular" style="font-size: 16px; color: #666; margin-left: 20px;">
+                        Below are your login details. Please keep them secure.
+                    </p>
+                    <p class="sarala-regular" style="font-size: 13px; color: #666; margin-left: 20px;">
+                        Email: {{ $user->email }}<br>
+                        Password: {{ $password }}
+                    </p>
                     <a href="#"
                         style="display: inline-block; background-color: black; color: #fff; padding: 10px 20px; border-radius: 22px; text-decoration: none; font-size: 13.5px; margin-top: 10px; margin-left: 20px; cursor: pointer; border: 2px solid #fff;">
                         Go to Home

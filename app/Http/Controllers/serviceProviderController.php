@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateReviewRequest;
 use App\Http\Requests\CreateServiceProviderAvailabilityRequest;
 use App\Http\Requests\CreateServiceProviderRequest;
+use App\Models\review_images;
 use App\Models\reviews;
 use App\Models\service_provider_availability;
 use Illuminate\Http\Request;
@@ -66,8 +67,21 @@ class serviceProviderController extends Controller
             'user_id' => Auth::id(),
             'service_provider_id' => $validated['service_provider_id'],
             'rating' => $validated['rating'],
+            'qualities'   =>  $validated['qualities'] ? json_encode($validated['qualities']) : null,
             'comment' => $validated['comment'] ?? null,
         ]);
+
+        // Store review images if any
+        if ($request->hasFile('images')) {
+            foreach ($validated['images'] as $image) {
+                $filename = date('YmdHi').uniqid().$image->getClientOriginalName();
+                $image->move(public_path('upload/review_images'), $filename);
+                review_images::create([
+                    'review_id' => $review->id,
+                    'image_url' => $filename,
+                ]);
+            }
+        }
 
         // Return a JSON response
         return response()->json([
@@ -80,9 +94,13 @@ class serviceProviderController extends Controller
     public function getReviewsByProvider($serviceProviderId): JsonResponse
     {
         $reviews = reviews::where('service_provider_id', $serviceProviderId)->with('user')->get();
+        $averageRating = $reviews->avg('rating');
+        $reviewCount = $reviews->count();
 
         return response()->json([
             'reviews' => $reviews,
+            'averageRating' => $averageRating,
+            'reviewCount' => $reviewCount,
         ]);
     }
 

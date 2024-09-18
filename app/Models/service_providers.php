@@ -19,4 +19,9 @@ class service_providers extends Model
     {
         return $this->hasMany(Reviews::class);
     }
+
+    public function bookings()
+    {
+        return $this->hasMany(bookings::class);
+    }
 }
