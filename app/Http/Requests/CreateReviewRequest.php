@@ -26,7 +26,7 @@ class CreateReviewRequest extends FormRequest
             'rating'              => 'required|integer|min:1|max:5',
             'qualities'           => 'nullable|array|max:3',
             'qualities.*'         => 'string|in:Friendly,Timeliness,Professionalism,Cleanliness',
-            'comment'             => 'nullable|string|max:1000',
+            'comment'            => 'nullable|string|max:1000',
             'images'              => 'nullable|array|max:3',
             'images.*'            => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ];

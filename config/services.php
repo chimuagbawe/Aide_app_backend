@@ -38,19 +38,20 @@ return [
     'google' => [
     'client_id' => env('GOOGLE_CLIENT_ID'),
     'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-    'redirect' => 'http://127.0.0.1:8000/api/auth/google/callback',
+    // 'redirect' => env('NGROK_URL') . '/api/auth/google/callback',
+    'redirect' => 'https://bb82-105-113-8-127.ngrok-free.app/api/auth/google/callback',
     ],
 
     'facebook' => [
         'client_id' => env('FACEBOOK_CLIENT_ID'),
         'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
-        'redirect' => 'http://127.0.0.1:8000/auth/facebook/callback',
+        'redirect' => env('NGROK_URL') . '/api/auth/facebook/callback',
     ],
 
     'apple' => [
         'client_id' => env('APPLE_CLIENT_ID'),
         'client_secret' => env('APPLE_CLIENT_SECRET'),
-        'redirect' => 'http://127.0.0.1:8000/auth/apple/callback',
+        'redirect' => env('NGROK_URL') . '/api/auth/apple/callback',
     ],
 
 ];

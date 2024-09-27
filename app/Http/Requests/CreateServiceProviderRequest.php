@@ -27,6 +27,10 @@ class CreateServiceProviderRequest extends FormRequest
             'experience' => 'required|string|max:255',
             'location' => 'required|string|max:255',
             'description' => 'required|string|max:1000',
+            'days_of_week' => 'required|array',
+            'days_of_week.*' => 'in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
         ];
     }
 }

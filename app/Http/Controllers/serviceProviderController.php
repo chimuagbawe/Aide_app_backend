@@ -29,6 +29,12 @@ class serviceProviderController extends Controller
              'location' => $validatedData['location'],
              'description' => $validatedData['description'],
          ]);
+         service_provider_availability::create([
+            'service_provider_id' => $serviceProvider->id,
+            'days_of_week' => json_encode($validatedData['days_of_week']), // Store the array as JSON
+            'start_time' => $validatedData['start_time'],
+            'end_time' => $validatedData['end_time'],
+        ]);
 
          // Return a JSON response with the created service provider
          return response()->json([
@@ -90,7 +96,6 @@ class serviceProviderController extends Controller
         ], 201);
     }
 
-    // Get all reviews for a specific service provider.
     public function getReviewsByProvider($serviceProviderId): JsonResponse
     {
         $reviews = reviews::where('service_provider_id', $serviceProviderId)->with('user')->get();

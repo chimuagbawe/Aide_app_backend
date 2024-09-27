@@ -24,4 +24,10 @@ class service_providers extends Model
     {
         return $this->hasMany(bookings::class);
     }
+
+    public function promos()
+    {
+        return $this->hasMany(Promo::class);
+    }
+
 }
