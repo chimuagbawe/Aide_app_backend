@@ -24,7 +24,7 @@ class AuthenticationController extends Controller
             if ($user) {
                 if (Hash::check($request->password, $user->password)) {
                     $token = $user->createToken('Initial Token')->plainTextToken;
-                    return response()->json(['message' => 'Login successful', 'user' => $user, 'token' => $token]);
+                    return response()->json(['message' => 'Login successful', 'user' => $user, 'token' => $token, 'isNewUser' => false]);
                 } else {
                     return response()->json(['message' => 'Wrong password'], 401);
                 }
@@ -35,7 +35,7 @@ class AuthenticationController extends Controller
                 $token = $user->createToken('Initial Token')->plainTextToken;
                 Mail::to($user->email)->send(new WelcomeUser($user, $password));
                 $user->sendEmailVerificationNotification();
-                return response()->json(['message' => 'User registered successfully.', 'user' => $user, 'token' => $token], 201);
+                return response()->json(['message' => 'User registered successfully.', 'user' => $user, 'token' => $token, 'isNewUser' => true], 201);
             }
         } catch (\Exception $e) {
             return response()->json(['error' => 'There was an error during authentication.', 'details' => $e->getMessage()], 500);

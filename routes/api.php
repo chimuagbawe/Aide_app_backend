@@ -36,7 +36,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('/email/resend', [AuthenticationController::class, 'resend']);
 
     Route::controller(ProfileController::class)->group(function () {
-        Route::get('/user/profile', 'show');
+        Route::post('/user/profile', 'show');
         Route::post('/logout', 'logout');
         Route::post('/update/profile', 'updateProfile');
     });

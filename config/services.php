@@ -38,8 +38,7 @@ return [
     'google' => [
     'client_id' => env('GOOGLE_CLIENT_ID'),
     'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-    // 'redirect' => env('NGROK_URL') . '/api/auth/google/callback',
-    'redirect' => 'https://bb82-105-113-8-127.ngrok-free.app/api/auth/google/callback',
+    'redirect' => env('NGROK_URL') . '/api/auth/google/callback',
     ],
 
     'facebook' => [
