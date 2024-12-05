@@ -29,7 +29,14 @@ Route::controller(AuthenticationController::class)->group(function () {
 Route::controller(ServiceController::class)->group(function () {
     Route::get('/get/service/{id}', 'getService');
     Route::get('/all/services', 'getAllServices');
+    Route::get('/popular/services', 'getPopularServices');
 });
+
+Route::controller(CategoryController::class)->group(function () {
+    Route::get('all/categories', 'getAllCategories');
+    Route::get('get/category/{id}', 'getCategory');
+});
+
 Route::post('/user/delete/account', [ProfileController::class, 'deleteAccount']);
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
@@ -44,12 +51,20 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 Route::middleware(EnsureEmailIsVerified::class)->group(function () {
 
     Route::middleware(checkAdmin::class)->group(function () {
+
         Route::controller(ServiceController::class)->group(function () {
             Route::get('/services/provider/{user_id}', 'getServicesByProvider');
             Route::post('/create/service', 'createService');
             Route::post('/update/service/{id}', 'updateService');
             Route::delete('/delete/service/{id}', 'deleteService');
         });
+
+        Route::controller(CategoryController::class)->group(function () {
+            Route::post('create/category', 'createCategory');
+            Route::put('update/category/{id}', 'updateCategory');
+            Route::delete('delete/category/{id}', 'deleteCategory');
+        });
+
     });
 
     Route::controller(serviceProviderController::class)->group(function () {

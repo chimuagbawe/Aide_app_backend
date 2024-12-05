@@ -106,6 +106,19 @@ public function getAllServices(){
     ]);
 }
 
+public function getPopularServices()
+{
+    // Fetch services ordered by the number of bookings, descending
+    $popularServices = Services::orderBy('bookings', 'desc')->take(4)->get();
+
+    // Return a JSON response with the list of popular services
+    return response()->json([
+        'message' => 'Popular services retrieved successfully',
+        'services' => $popularServices,
+    ]);
+}
+
+
 public function getServicesByCategory($category_id){
     // Retrieve services that belong to the specified category
     $services = Services::where('category_id', $category_id)->get();

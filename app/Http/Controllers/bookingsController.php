@@ -8,6 +8,7 @@ use App\Models\bookings;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Middleware\checkAdmin;
 use App\Models\promo;
+use App\Models\services;
 use Illuminate\Http\Request;
 
 class bookingsController extends Controller
@@ -43,6 +44,9 @@ class bookingsController extends Controller
             'payment_method' => $validated['payment_method'],
             'status' => $validated['status'],
         ]);
+
+        // Increment the bookings count for the service
+        services::findOrFail($validated['service_id'])->increment('bookings');
 
         return response()->json([
             'message' => 'Booking created successfully!',
