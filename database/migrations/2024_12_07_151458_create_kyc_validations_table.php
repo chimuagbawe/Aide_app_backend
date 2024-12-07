@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('kyc_validations', function (Blueprint $table) {
             $table->id();
+            $table->string('address');
+            $table->text('document');
+            $table->text('selfie');
             $table->timestamps();
         });
     }

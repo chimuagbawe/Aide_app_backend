@@ -81,8 +81,23 @@ class AuthenticationController extends Controller
 
     public function kycValidation(kycValidationRequest $request){
         try {
-            $validatedData = $request->validated();
-            kyc_validation::create($validatedData);
+            $filename = null;
+            if ($request->hasFile('document')) {
+                    $file = $request->file('document');
+                    $filename = date('YmdHi').uniqid().$file->getClientOriginalName();
+                    $file->move(public_path('upload/kyc_documents'), $filename);
+            }
+            $filename2 = null;
+            if ($request->hasFile('selfie')) {
+                $file = $request->file('selfie');
+                $filename2 = date('YmdHi').uniqid().$file->getClientOriginalName();
+                $file->move(public_path('upload/kyc_selfies'), $filename2);
+            }
+            kyc_validation::create([
+                'address' => $request->address,
+                'document' => $filename,
+                'selfie' => $filename2
+            ]);
             return response()->json(['message' => 'KYC submitted successfully.'], 201);
         } catch (\Exception $e) {
             return response()->json(['error' => 'There was an error during submission.', 'details' => $e->getMessage()], 500);
