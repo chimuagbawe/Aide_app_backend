@@ -1,7 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use Carbon\Carbon;
 use App\Models\User;
+use App\Models\kyc_validation;
 use App\Mail\WelcomeUser;
 use App\Mail\VerifyEmail;
 use Illuminate\Support\Str;
@@ -14,6 +17,8 @@ use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Password;
 use App\Http\Requests\RegisterUserRequest;
 use App\Http\Requests\ResetPasswordRequest;
+use App\Http\Requests\authenticateProvider;
+use App\Http\Requests\kycValidationRequest;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class AuthenticationController extends Controller
@@ -39,6 +44,48 @@ class AuthenticationController extends Controller
             }
         } catch (\Exception $e) {
             return response()->json(['error' => 'There was an error during authentication.', 'details' => $e->getMessage()], 500);
+        }
+    }
+
+    public function authenticateProvider(authenticateProvider $request){
+        try {
+            $user = User::where('email', $request->email)->first();
+            if ($user) {
+                user::insert([
+                    'phone' => $request->phone,
+                    'photo' => $request->photo,
+                    'role' => 'provider',
+                    'updated_at' => Carbon::now(),
+                ]);
+
+                if (Hash::check($request->password, $user->password)) {
+                    $token = $user->createToken('Initial Token')->plainTextToken;
+                    return response()->json(['message' => 'Login successful', 'user' => $user, 'token' => $token, 'isNewUser' => false]);
+                } else {
+                    return response()->json(['message' => 'Wrong password'], 401);
+                }
+            } else {
+                $password = $request->password;
+                $validatedData = $request->validated();
+                $user = User::create($validatedData);
+                user::insert(['role' => 'provider']);
+                $token = $user->createToken('Initial Token')->plainTextToken;
+                Mail::to($user->email)->send(new WelcomeUser($user, $password));
+                $user->sendEmailVerificationNotification();
+                return response()->json(['message' => 'User registered successfully.', 'user' => $user, 'token' => $token, 'isNewUser' => true], 201);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'There was an error during authentication.', 'details' => $e->getMessage()], 500);
+        }
+    }
+
+    public function kycValidation(kycValidationRequest $request){
+        try {
+            $validatedData = $request->validated();
+            kyc_validation::create($validatedData);
+            return response()->json(['message' => 'KYC submitted successfully.'], 201);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'There was an error during submission.', 'details' => $e->getMessage()], 500);
         }
     }
 

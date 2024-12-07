@@ -19,6 +19,8 @@ Route::get('/user', function (Request $request) {
 
 Route::controller(AuthenticationController::class)->group(function () {
     Route::post('/auth', 'authenticate');
+    Route::post('/auth/provider', 'authenticateProvider');
+    Route::post('/kyc', 'kycValidation');
     Route::get('/auth/{client}','redirect');
     Route::get('/auth/{client}/callback','handleCallback');
     Route::post('/forget/password', 'forgetPassword');
@@ -41,7 +43,6 @@ Route::post('/user/delete/account', [ProfileController::class, 'deleteAccount'])
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('/email/resend', [AuthenticationController::class, 'resend']);
-
     Route::controller(ProfileController::class)->group(function () {
         Route::post('/user/profile', 'show');
         Route::post('/logout', 'logout');
@@ -49,40 +50,37 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     });
 
 Route::middleware(EnsureEmailIsVerified::class)->group(function () {
+Route::middleware(checkAdmin::class)->group(function () {
+Route::controller(ServiceController::class)->group(function () {
+Route::get('/services/provider/{user_id}', 'getServicesByProvider');
+Route::post('/create/service', 'createService');
+Route::post('/update/service/{id}', 'updateService');
+Route::delete('/delete/service/{id}', 'deleteService');
+});
+Route::controller(CategoryController::class)->group(function () {
+Route::post('create/category', 'createCategory');
+Route::put('update/category/{id}', 'updateCategory');
+Route::delete('delete/category/{id}', 'deleteCategory');
+});
 
-    Route::middleware(checkAdmin::class)->group(function () {
+});
 
-        Route::controller(ServiceController::class)->group(function () {
-            Route::get('/services/provider/{user_id}', 'getServicesByProvider');
-            Route::post('/create/service', 'createService');
-            Route::post('/update/service/{id}', 'updateService');
-            Route::delete('/delete/service/{id}', 'deleteService');
-        });
+Route::controller(serviceProviderController::class)->group(function () {
+Route::post('/review', 'store');
+Route::post('/create/service/provider', 'createServiceProvider');
+Route::get('/service/provider/reviews/{serviceProviderId}', 'getReviewsByProvider');
+Route::post('/create/service/provider/availability', 'createServiceProviderAvailability');
+});
 
-        Route::controller(CategoryController::class)->group(function () {
-            Route::post('create/category', 'createCategory');
-            Route::put('update/category/{id}', 'updateCategory');
-            Route::delete('delete/category/{id}', 'deleteCategory');
-        });
+Route::controller(bookingsController::class)->group(function () {
 
-    });
-
-    Route::controller(serviceProviderController::class)->group(function () {
-        Route::post('/review', 'store');
-        Route::post('/create/service/provider', 'createServiceProvider');
-        Route::get('/service/provider/reviews/{serviceProviderId}', 'getReviewsByProvider');
-        Route::post('/create/service/provider/availability', 'createServiceProviderAvailability');
-    });
-
-    Route::controller(bookingsController::class)->group(function () {
-
-        Route::post('/book', 'store');
-        Route::patch('/bookings/{id}/update', 'update');
-        Route::patch('/bookings/{id}/cancel', 'cancelBooking');
-        Route::patch('/bookings/{id}/confirm', 'confirmBooking');
+Route::post('/book', 'store');
+Route::patch('/bookings/{id}/update', 'update');
+Route::patch('/bookings/{id}/cancel', 'cancelBooking');
+Route::patch('/bookings/{id}/confirm', 'confirmBooking');
 
 
-    });
+});
 
 
 
