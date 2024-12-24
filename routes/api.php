@@ -19,6 +19,8 @@ Route::get('/user', function (Request $request) {
 
 Route::controller(AuthenticationController::class)->group(function () {
     Route::post('/auth', 'authenticate');
+    Route::post('/login', 'login');
+    Route::post('/auth/user', 'authenticateUser');
     Route::post('/auth/provider', 'authenticateProvider');
     Route::post('/kyc', 'kycValidation');
     Route::get('/auth/{client}','redirect');
