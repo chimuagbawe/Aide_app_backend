@@ -97,7 +97,7 @@ public function getService($id){
 }
 
 public function getAllServices(){
-    $services = Services::all();
+    $services = Services::all()->limit(4)->get();
 
     // Return a JSON response with the list of services
     return response()->json([

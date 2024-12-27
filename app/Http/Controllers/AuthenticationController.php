@@ -15,8 +15,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Password;
-use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\RegisterUserRequest;
+use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Requests\authenticateProvider;
 use App\Http\Requests\kycValidationRequest;
@@ -39,8 +39,8 @@ class AuthenticationController extends Controller
                 $validatedData = $request->validated();
                 $user = User::create($validatedData);
                 $token = $user->createToken('Initial Token')->plainTextToken;
-                Mail::to($user->email)->send(new WelcomeUser($user, $password));
-                $user->sendEmailVerificationNotification();
+                // Mail::to($user->email)->send(new WelcomeUser($user, $password));
+                // $user->sendEmailVerificationNotification();
                 return response()->json(['message' => 'User registered successfully.', 'user' => $user, 'token' => $token, 'isNewUser' => true], 201);
             }
         } catch (\Exception $e) {
@@ -48,21 +48,21 @@ class AuthenticationController extends Controller
         }
     }
 
-     public function authenticateUser(RegisterUserRequest $request){
+        public function authenticateUser(RegisterUserRequest $request){
         try {
             $password = $request->password;
             $validatedData = $request->validated();
             $user = User::create($validatedData);
             $token = $user->createToken('Initial Token')->plainTextToken;
-            Mail::to($user->email)->send(new WelcomeUser($user, $password));
-            $user->sendEmailVerificationNotification();
+            // Mail::to($user->email)->send(new WelcomeUser($user, $password));
+            // $user->sendEmailVerificationNotification();
             return response()->json(['message' => 'User registered successfully.', 'user' => $user, 'token' => $token, 'isNewUser' => true], 201);
         } catch (\Exception $e) {
             return response()->json(['error' => 'There was an error during authentication.', 'details' => $e->getMessage()], 500);
         }
     }
 
-    public function login(LoginUserRequest $request){
+    public function login(request $request){
         try {
             $user = User::where('email', $request->email)->first();
             if ($user) {
@@ -103,8 +103,8 @@ class AuthenticationController extends Controller
                 $user = User::create($validatedData);
                 user::insert(['role' => 'provider']);
                 $token = $user->createToken('Initial Token')->plainTextToken;
-                Mail::to($user->email)->send(new WelcomeUser($user, $password));
-                $user->sendEmailVerificationNotification();
+                // Mail::to($user->email)->send(new WelcomeUser($user, $password));
+                // $user->sendEmailVerificationNotification();
                 return response()->json(['message' => 'User registered successfully.', 'user' => $user, 'token' => $token, 'isNewUser' => true], 201);
             }
         } catch (\Exception $e) {
@@ -186,7 +186,7 @@ class AuthenticationController extends Controller
             $token = $user->createToken('Initial Token')->plainTextToken;
             $message = $user->wasRecentlyCreated ? 'User registered successfully.' : 'Logged in successfully.';
 
-            return redirect()->away('http://localhost:3000/profile?token=' . urlencode($token) . '&message=' . urlencode($message));
+            return redirect()->away('https://aideapp.com.ng/profile?token=' . urlencode($token) . '&message=' . urlencode($message));
 
         } catch (\Exception $e) {
             return response()->json(['error' => 'Unable to handle authentication callback.', 'details' => $e->getMessage()], 500);
