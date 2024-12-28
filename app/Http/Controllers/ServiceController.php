@@ -99,6 +99,8 @@ public function getService($id){
 public function getAllServices(){
     $services = Services::limit(4)->get();
 
+    // kingobioma
+
     // Return a JSON response with the list of services
     return response()->json([
         'message' => 'Services retrieved successfully',
