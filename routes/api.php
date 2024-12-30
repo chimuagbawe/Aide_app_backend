@@ -46,8 +46,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('/user/delete/account', 'deleteAccount');
         Route::post('/update/profile', 'updateProfile');
     });
-    Route::middleware(EnsureEmailIsVerified::class)->group(function () {
-    Route::middleware(checkAdmin::class)->group(function () {
+    // Route::middleware(EnsureEmailIsVerified::class)->group(function () {
+    // Route::middleware(checkAdmin::class)->group(function () {
     Route::controller(ServiceController::class)->group(function () {
         Route::get('/services/provider/{user_id}', 'getServicesByProvider');
         Route::post('/create/service', 'createService');
@@ -58,7 +58,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('create/category', 'createCategory');
         Route::put('update/category/{id}', 'updateCategory');
         Route::delete('delete/category/{id}', 'deleteCategory');
-    });});
+    });
+// });
     Route::controller(serviceProviderController::class)->group(function () {
         Route::post('/review', 'store');
         Route::post('/create/service/provider', 'createServiceProvider');
@@ -70,5 +71,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::patch('/bookings/{id}/update', 'update');
         Route::patch('/bookings/{id}/cancel', 'cancelBooking');
         Route::patch('/bookings/{id}/confirm', 'confirmBooking');
-    });});
+    });
+// });
 });
