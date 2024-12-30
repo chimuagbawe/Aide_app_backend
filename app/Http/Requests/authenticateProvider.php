@@ -24,7 +24,7 @@ class authenticateProvider extends FormRequest
         return [
             'name' => 'required',
             'email' => 'required|email',
-            'phone' => 'required',
+            'phone_number' => 'required',
             'photo' => 'required|file|mimes:jpeg,png',
             'password' => 'required|string|min:8',
         ];
