@@ -80,37 +80,94 @@ class AuthenticationController extends Controller
         }
     }
 
+    // public function authenticateProvider(authenticateProvider $request){
+    //     try {
+    //         $user = User::where('email', $request->email)->first();
+    //         if ($user) {
+    //             user::insert([
+    //                 'phone_number' => $request->phone,
+    //                 'photo' => $request->photo,
+    //                 'role' => 'provider',
+    //                 'updated_at' => Carbon::now(),
+    //             ]);
+
+    //             if (Hash::check($request->password, $user->password)) {
+    //                 $token = $user->createToken('Initial Token')->plainTextToken;
+    //                 return response()->json(['message' => 'Login successful', 'user' => $user, 'token' => $token, 'isNewUser' => false]);
+    //             } else {
+    //                 return response()->json(['message' => 'Wrong password'], 401);
+    //             }
+    //         } else {
+    //             $password = $request->password;
+    //             $validatedData = $request->validated();
+    //             $user = User::create($validatedData);
+    //             user::insert(['role' => 'provider']);
+    //             $token = $user->createToken('Initial Token')->plainTextToken;
+    //             // Mail::to($user->email)->send(new WelcomeUser($user, $password));
+    //             // $user->sendEmailVerificationNotification();
+    //             return response()->json(['message' => 'User registered successfully.', 'user' => $user, 'token' => $token, 'isNewUser' => true], 201);
+    //         }
+    //     } catch (\Exception $e) {
+    //         return response()->json(['error' => 'There was an error during authentication.', 'details' => $e->getMessage()], 500);
+    //     }
+    // }
+
     public function authenticateProvider(authenticateProvider $request){
         try {
             $user = User::where('email', $request->email)->first();
+
             if ($user) {
-                user::insert([
+                // Update the existing user's details if necessary
+                $user->update([
                     'phone_number' => $request->phone,
                     'photo' => $request->photo,
                     'role' => 'provider',
-                    'updated_at' => Carbon::now(),
+                    'updated_at' => now(),
                 ]);
 
+                // Check the password
                 if (Hash::check($request->password, $user->password)) {
                     $token = $user->createToken('Initial Token')->plainTextToken;
-                    return response()->json(['message' => 'Login successful', 'user' => $user, 'token' => $token, 'isNewUser' => false]);
+                    return response()->json([
+                        'message' => 'Login successful',
+                        'user' => $user,
+                        'token' => $token,
+                        'isNewUser' => false,
+                    ]);
                 } else {
                     return response()->json(['message' => 'Wrong password'], 401);
                 }
             } else {
-                $password = $request->password;
+                // Register a new user
                 $validatedData = $request->validated();
+
+                // Add the default role to the validated data
+                $validatedData['role'] = 'provider';
+
+                // Hash the password before saving
+                $validatedData['password'] = Hash::make($validatedData['password']);
+
+                // Create the new user
                 $user = User::create($validatedData);
-                user::insert(['role' => 'provider']);
+
+                // Generate a token for the new user
                 $token = $user->createToken('Initial Token')->plainTextToken;
-                // Mail::to($user->email)->send(new WelcomeUser($user, $password));
-                // $user->sendEmailVerificationNotification();
-                return response()->json(['message' => 'User registered successfully.', 'user' => $user, 'token' => $token, 'isNewUser' => true], 201);
+
+                return response()->json([
+                    'message' => 'User registered successfully.',
+                    'user' => $user,
+                    'token' => $token,
+                    'isNewUser' => true,
+                ], 201);
             }
         } catch (\Exception $e) {
-            return response()->json(['error' => 'There was an error during authentication.', 'details' => $e->getMessage()], 500);
+            return response()->json([
+                'error' => 'There was an error during authentication.',
+                'details' => $e->getMessage(),
+            ], 500);
         }
     }
+
 
     public function kycValidation(kycValidationRequest $request){
         try {
