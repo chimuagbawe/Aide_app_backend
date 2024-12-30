@@ -80,7 +80,6 @@ class AuthenticationController extends Controller
         }
     }
 
-    // public function authenticateProvider(authenticateProvider $request){
     //     try {
     //         $user = User::where('email', $request->email)->first();
     //         if ($user) {
@@ -112,61 +111,151 @@ class AuthenticationController extends Controller
     //     }
     // }
 
+    // public function authenticateProvider(authenticateProvider $request){
+    //     try {
+    //         $user = User::where('email', $request->email)->first();
+
+    //         if ($user) {
+    //             if ($request->hasFile('photo')) {
+    //                 $file = $request->file('photo');
+    //                 if ($user->photo && file_exists(public_path('upload/service_photos/'.$service->photo))) {
+    //                     @unlink(public_path('upload/service_photos/'.$service->photo));
+    //                 }
+    //                 $filename = date('YmdHi').uniqid().$file->getClientOriginalName();
+    //                 $file->move(public_path('upload/service_photos'), $filename);
+    //             }
+    //             // Update the existing user's details if necessary
+    //             $user->update([
+    //                 'phone_number' => $request->phone,
+    //                 'photo' => $request->photo,
+    //                 'role' => 'provider',
+    //                 'updated_at' => now(),
+    //             ]);
+
+    //             // Check the password
+    //             if (Hash::check($request->password, $user->password)) {
+    //                 $token = $user->createToken('Initial Token')->plainTextToken;
+    //                 return response()->json([
+    //                     'message' => 'Login successful',
+    //                     'user' => $user,
+    //                     'token' => $token,
+    //                     'isNewUser' => false,
+    //                 ]);
+    //             } else {
+    //                 return response()->json(['message' => 'Wrong password'], 401);
+    //             }
+    //         } else {
+
+    //             if ($request->hasFile('photo')) {
+    //                 $file = $request->file('photo');
+    //                 $filename = date('YmdHi').uniqid().$file->getClientOriginalName();
+    //                 $file->move(public_path('upload/service_provider_photos'), $filename);
+    //             }
+
+
+    //             // Register a new user
+    //             $validatedData = $request->validated();
+
+    //             // Add the default role to the validated data
+    //             $validatedData['role'] = 'provider';
+
+    //             // Hash the password before saving
+    //             $validatedData['password'] = Hash::make($validatedData['password']);
+
+    //             // Create the new user
+    //             $user = User::create($validatedData);
+
+    //             // Generate a token for the new user
+    //             $token = $user->createToken('Initial Token')->plainTextToken;
+
+    //             return response()->json([
+    //                 'message' => 'User registered successfully.',
+    //                 'user' => $user,
+    //                 'token' => $token,
+    //                 'isNewUser' => true,
+    //             ], 201);
+    //         }
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'error' => 'There was an error during authentication.',
+    //             'details' => $e->getMessage(),
+    //         ], 500);
+    //     }
+    // }
+
+
     public function authenticateProvider(authenticateProvider $request){
-        try {
-            $user = User::where('email', $request->email)->first();
+    try {
+        $user = User::where('email', $request->email)->first();
 
-            if ($user) {
-                // Update the existing user's details if necessary
-                $user->update([
-                    'phone_number' => $request->phone,
-                    'photo' => $request->photo,
-                    'role' => 'provider',
-                    'updated_at' => now(),
-                ]);
+        // Handle photo upload
+        $photoPath = null;
+        if ($request->hasFile('photo')) {
+            $file = $request->file('photo');
 
-                // Check the password
-                if (Hash::check($request->password, $user->password)) {
-                    $token = $user->createToken('Initial Token')->plainTextToken;
-                    return response()->json([
-                        'message' => 'Login successful',
-                        'user' => $user,
-                        'token' => $token,
-                        'isNewUser' => false,
-                    ]);
-                } else {
-                    return response()->json(['message' => 'Wrong password'], 401);
-                }
-            } else {
-                // Register a new user
-                $validatedData = $request->validated();
+            // Delete existing photo if it exists
+            if ($user && $user->photo && file_exists(public_path('upload/service_photos/' . $user->photo))) {
+                @unlink(public_path('upload/service_photos/' . $user->photo));
+            }
 
-                // Add the default role to the validated data
-                $validatedData['role'] = 'provider';
+            // Save the new photo
+            $filename = date('YmdHi') . uniqid() . $file->getClientOriginalName();
+            $file->move(public_path('upload/service_photos'), $filename);
+            $photoPath = 'upload/service_photos/' . $filename;
+        }
 
-                // Hash the password before saving
-                $validatedData['password'] = Hash::make($validatedData['password']);
+        if ($user) {
+            // Update the existing user's details
+            $user->update([
+                'phone_number' => $request->phone,
+                'photo' => $photoPath ?: $user->photo,
+                'role' => 'provider',
+                'updated_at' => now(),
+            ]);
 
-                // Create the new user
-                $user = User::create($validatedData);
-
-                // Generate a token for the new user
+            // Check the password
+            if (Hash::check($request->password, $user->password)) {
                 $token = $user->createToken('Initial Token')->plainTextToken;
-
                 return response()->json([
-                    'message' => 'User registered successfully.',
+                    'message' => 'Login successful',
                     'user' => $user,
                     'token' => $token,
-                    'isNewUser' => true,
-                ], 201);
+                    'isNewUser' => false,
+                ]);
+            } else {
+                return response()->json(['message' => 'Wrong password'], 401);
             }
-        } catch (\Exception $e) {
+        } else {
+            // Register a new user
+            $validatedData = $request->validated();
+
+            // Add the default role and photo path to the validated data
+            $validatedData['role'] = 'provider';
+            $validatedData['photo'] = $photoPath;
+            $validatedData['password'] = Hash::make($validatedData['password']);
+
+            // Create the new user
+            $user = User::create($validatedData);
+
+            // Generate a token for the new user
+            $token = $user->createToken('Initial Token')->plainTextToken;
+
             return response()->json([
-                'error' => 'There was an error during authentication.',
-                'details' => $e->getMessage(),
-            ], 500);
+                'message' => 'User registered successfully.',
+                'user' => $user,
+                'token' => $token,
+                'isNewUser' => true,
+            ], 201);
         }
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'There was an error during authentication.',
+            'details' => $e->getMessage(),
+        ], 500);
     }
+}
+
+
 
 
     public function kycValidation(kycValidationRequest $request){
