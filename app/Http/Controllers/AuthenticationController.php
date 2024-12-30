@@ -85,7 +85,7 @@ class AuthenticationController extends Controller
             $user = User::where('email', $request->email)->first();
             if ($user) {
                 user::insert([
-                    'phone' => $request->phone,
+                    'phone_number' => $request->phone,
                     'photo' => $request->photo,
                     'role' => 'provider',
                     'updated_at' => Carbon::now(),
