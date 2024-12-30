@@ -207,7 +207,7 @@ class AuthenticationController extends Controller
         if ($user) {
             // Update the existing user's details
             $user->update([
-                'phone_number' => $request->phone,
+                'phone_number' => $request->phone_number,
                 'photo' => $photoPath ?: $user->photo,
                 'role' => 'provider',
                 'updated_at' => now(),
