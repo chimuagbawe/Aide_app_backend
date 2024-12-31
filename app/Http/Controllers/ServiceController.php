@@ -10,9 +10,9 @@ class ServiceController extends Controller
 public function createService(CreateServiceRequest $request){
     $filename = null;
     if ($request->hasFile('thumbnail')) {
-            $file = $request->file('thumbnail');
-            $filename = date('YmdHi').uniqid().$file->getClientOriginalName();
-            $file->move(public_path('upload/service_thumbnails'), $filename);
+        $file = $request->file('thumbnail');
+        $filename = date('YmdHi').uniqid().$file->getClientOriginalName();
+        $file->move(public_path('upload/service_thumbnails'), $filename);
     }
 
     // Create the service with validated data
@@ -37,27 +37,11 @@ public function updateService(UpdateServiceRequest $request, $id){
         $file->move(public_path('upload/service_thumbnails'), $filename);
     }
     $service->update([
-        'name' => $request->name,
-        'description' => $request->description,
-        'thumbnail' => $filename,
-        'service_type' => $request->service_type
+        'name' => $request->name ?: $service->name,
+        'description' => $request->description ?: $service->description,
+        'thumbnail' => $filename ?: $service->thumbnail,
+        'service_type' => $request->service_type ?: $service->service_type
     ]);
-    // if ($request->filled('name')) {
-    //     $service->name = $request->input('name');
-    // }
-    // if ($request->filled('description')) {
-    //     $service->description = $request->input('description');
-    // }
-    // if ($request->filled('thumbnail')) {
-    //     $service->thumbnail = $filename;
-    // }
-    // if ($request->filled('service_type')) {
-    //     $service->service_type = $request->input('service_type');
-    // }
-
-    // $service->update($request->validated());
-    // why doesn't the above line work
-    // why put method doesnt work
 
     return response()->json([
         'message' => 'Service updated successfully',
@@ -97,9 +81,7 @@ public function getService($id){
 }
 
 public function getAllServices(){
-    $services = Services::limit(4)->get();
-
-    // kingobioma
+    $services = Services::all();
 
     // Return a JSON response with the list of services
     return response()->json([
@@ -108,8 +90,7 @@ public function getAllServices(){
     ]);
 }
 
-public function getPopularServices()
-{
+public function getPopularServices(){
     // Fetch services ordered by the number of bookings, descending
     $popularServices = Services::orderBy('bookings', 'desc')->take(4)->get();
 
@@ -119,7 +100,6 @@ public function getPopularServices()
         'services' => $popularServices,
     ]);
 }
-
 
 public function getServicesByCategory($category_id){
     // Retrieve services that belong to the specified category
